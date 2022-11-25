@@ -1,0 +1,91 @@
+---
+title: "Lab 3"
+output:
+  html_document: default
+  word_document: default
+  pdf_document: default
+date: "2022-11-25"
+editor_options:
+  chunk_output_type: inline
+---
+
+```{r setup, include=TRUE}
+
+```
+
+## Задание 1
+4. Объедините таблицы в одну, уберите столбец с территорией торговли,
+т.к. там только Евросоюз, оставим только строки с экспортом и импортом,
+вынесете данные по экспорту и импорту в отдельные переменные.
+Постройте линейный график изменения суммарных величин импорта и экспорта
+по импорту/экспорту продуктов питания, напитков и табака
+(у вас должно получиться 2 графика на одном изображении).
+Используйте цвет для разделения графиков. Добавьте текстовые подписи величин импорта и экспорта. Отрегулируйте местоположение и размер шрифта
+для подписей так, чтобы они не налезали на линии и не перекрывали друг
+друга, рисунок был максимально наглядным. Придумайте новые названия для графика и осей.
+```{r echo=FALSE, warning=FALSE}
+library(dplyr, warn.conflicts = FALSE)
+library(stringr)
+library(tidyr)
+library(ggplot2)
+# load("Lab3/trades.RData")
+load("trades.RData")
+
+tb <- trades |>
+    bind_rows() |>
+    select(-geo) |>
+    dplyr::filter(str_detect(indic_et, "Exports in|Imports in")) |>
+    pivot_wider(names_from = indic_et, values_from = values) |>
+    rename(
+        export = "Exports in million of ECU/EURO",
+        import = "Imports in million of ECU/EURO"
+    )
+
+trades_fdt <- tb |>
+    dplyr::filter(str_detect(sitc06, "Food, drinks and tobacco")) |>
+    group_by(time) |>
+    summarise(export = sum(export), import = sum(import))
+
+colors <- c("Export" = "red", "Import" = "blue")
+p <- ggplot(trades_fdt, aes(x = time))
+p <- p + geom_line(aes(y = export, color = "Export")) + geom_point(aes(y = export))
+p <- p + geom_line(aes(y = import, color = "Import")) + geom_point(aes(y = import))
+p <- p + geom_text(aes(y = export, label = export), nudge_x = -85, nudge_y = 850, size=2) + geom_text(aes(y = import, label = import),hjust = 0,nudge_x = 50,  nudge_y = -550, size=2)
+p <- p + labs(x = "Time", y = "Value", title = "Export Import FDT", color = "Legend") + scale_color_manual(values = colors)
+p <- p + theme(plot.title = element_text(hjust = 0.5))
+
+print(p)
+```
+
+## Задание 2
+9. Удалите строки, в которых есть пропущенные значения и приведите данные
+к формату tidydata. Отобразите динамику лесовосстановления по годам с
+помощью линейного графика для любого из федеральных округов, обозначив
+субъекты федерации разными цветами. Подпишите значения на графике.
+Отрегулируйте местоположение подписей так, чтобы рисунок был максимально
+наглядным. Придумайте новые назания графика и осей.
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+# df <- read_csv("Lab3/reforest.csv", na = c("-", "NA"))
+library(dplyr, warn.conflicts = FALSE)
+library(stringr)
+library(tidyr)
+library(readr)
+library(ggplot2)
+
+df <- read_csv("reforest.csv", na = c("-", "NA"))
+tb <- drop_na(df)
+tmp <- str_detect(tb$Region, "федеральный округ")
+n_federal_distr <- 3
+begin <- which(tmp == "TRUE")[n_federal_distr] + 1
+end <- which(tmp == "TRUE")[n_federal_distr + 1] - 1
+new_tb <- tb[begin:end, ]
+another <- pivot_longer(new_tb, !Region, names_to = "year", values_to = "value") |>
+    mutate(year = as.numeric(year))
+
+p <- ggplot(another) +
+    geom_line(mapping = aes(x = year, y = value, color = Region)) +
+    geom_point(mapping = aes(x = year, y = value))
+p <- p + geom_text(aes(x = year, y = value, label = value), vjust = 0,nudge_y = 0.05)
+p <- p + xlab("Год") + ylab("Площадь(тысяч га)") + ggtitle(tb$Region[[begin - 1]]) + theme(plot.title = element_text(hjust = 0.5))
+print(p)
+```
