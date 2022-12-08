@@ -365,6 +365,25 @@ display: none;
 находит субъекты федерации в которых суммарные экспорт превышает
 суммарный импорт.</li>
 </ol>
+<pre class="r"><code>load(&quot;ExpImp.RData&quot;)
+# load(&quot;Lab2/ExpImp.RData&quot;)
+fix_data &lt;- function(df) {
+    change &lt;- function(x) {
+        vec &lt;- as.numeric(gsub(&quot;-&quot;, &quot;0&quot;, x))
+        ifelse(is.na(vec), x, vec)
+    }
+    data.frame(lapply(df, change))
+}
+
+export_ge_import &lt;- function(df) {
+    df[which(df$СуммЭкспорт &gt; df$СуммИмпорт), ]$Регион
+}
+
+df &lt;- subset(ExpImp, !grepl(&quot;федеральный округ|Федерация|в том числе&quot;, Регион))
+new_df &lt;- fix_data(df)
+new_df$СуммЭкспорт &lt;- rowSums(new_df[, grep(&quot;Экспорт&quot;, colnames(new_df))])
+new_df$СуммИмпорт &lt;- rowSums(new_df[, grep(&quot;Импорт&quot;, colnames(new_df))])
+print(export_ge_import(new_df))</code></pre>
 <pre><code>##  [1] &quot;Воронежская область&quot;                         
 ##  [2] &quot;Костромская область&quot;                         
 ##  [3] &quot;Липецкая область&quot;                            
@@ -426,6 +445,19 @@ display: none;
 стоимость услуги в данной больнице. Список должен быть упорядочен по
 возрастанию значения стоимости услуги.</li>
 </ol>
+<pre class="r"><code>get_named_list &lt;- function(df, city, measure_name) {
+    tmp_df &lt;- subset(df, City == city &amp; Payment.Measure.Name == paste(&quot;Payment for&quot;, measure_name, &quot;patients&quot;))
+    tmp_df$Payment &lt;- as.numeric(gsub(&quot;,&quot;, &quot;&quot;, substr(tmp_df$Payment, start = 2, stop = nchar(tmp_df$Payment))))
+    another &lt;- aggregate(tmp_df$Payment, list(tmp_df$Facility.Name), FUN = mean)
+    another &lt;- split(another$x, another$Group.1)
+    sorted_lst &lt;- another[order(unlist(another), decreasing = FALSE)]
+
+    return(sorted_lst)
+}
+df &lt;- read.csv(&quot;Payment_and_Value_of_Care-Hospital.csv&quot;)
+# df &lt;- read.csv(&quot;Lab2/Payment_and_Value_of_Care-Hospital.csv&quot;)
+
+print(get_named_list(df, &quot;LOS ANGELES&quot;, &quot;pneumonia&quot;))</code></pre>
 <pre><code>## $`MARTIN LUTHER KING, JR. COMMUNITY HOSPITAL`
 ## [1] 17501
 ## 

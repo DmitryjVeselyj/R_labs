@@ -18,7 +18,7 @@ editor_options:
 Создайте data.frame в котором содержится только информация по субъектам федерации.
 Добавьте в него колонки, в которых содержится суммарный экспорт и импорт по субъектам федерации.
 Напишите функцию, которая в полученном Вами data.frame находит субъекты федерации в которых суммарные экспорт превышает суммарный импорт.
-```{r echo=FALSE, warning=FALSE}
+```{r, warning=FALSE}
 load("ExpImp.RData")
 # load("Lab2/ExpImp.RData")
 fix_data <- function(df) {
@@ -48,7 +48,7 @@ print(export_ge_import(new_df))
 в которой можно получить медицинскую помощь,
 а качестве значений – усредненная стоимость услуги в данной больнице.
 Список должен быть упорядочен по возрастанию значения стоимости услуги.
-```{r echo=FALSE, warning=FALSE}
+```{r, warning=FALSE}
 get_named_list <- function(df, city, measure_name) {
     tmp_df <- subset(df, City == city & Payment.Measure.Name == paste("Payment for", measure_name, "patients"))
     tmp_df$Payment <- as.numeric(gsub(",", "", substr(tmp_df$Payment, start = 2, stop = nchar(tmp_df$Payment))))
