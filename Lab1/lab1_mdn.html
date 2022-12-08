@@ -12,7 +12,7 @@
 
 <meta name="date" content="2022-10-09" />
 
-<title>Labs</title>
+<title>Lab 1</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -349,7 +349,7 @@ display: none;
 
 
 
-<h1 class="title toc-ignore">Labs</h1>
+<h1 class="title toc-ignore">Lab 1</h1>
 <h4 class="date">2022-10-09</h4>
 
 </div>
@@ -368,6 +368,18 @@ display: none;
 переведены в числовой тип, при этом те переменные, которые действительно
 являются строковыми (например, V2 и V4) никак преобразовывать не
 надо.</p>
+<pre class="r"><code>df &lt;- read.csv(&quot;lab1_e1.csv&quot;)
+# df &lt;- read.csv(&quot;Lab1/lab1_e1.csv&quot;)
+fix_data &lt;- function(df) {
+  change &lt;- function(x) {
+    vec &lt;- as.numeric(gsub(&quot; &quot;, &quot;&quot;, x))
+    ifelse(is.na(vec), x, vec)
+  }
+  data.frame(lapply(df, change))
+}
+
+new_df &lt;- fix_data(df)
+print(new_df)</code></pre>
 <pre><code>##        V1      V2      V3      V4      V5
 ## 1 -2.5935    II 2  0.4984 ST 123E -2.1544
 ## 2 -0.2888 ST 123E  1.5636 ST 123E  0.1053
@@ -400,6 +412,15 @@ display: none;
 среднее значение температуры за неделю только тех пациентов, которые
 посетили все семь приемов, то есть id таких пациентов присутствует в
 каждом из семи датафреймов</p>
+<pre class="r"><code>load(&quot;lab1_e2.Rdata&quot;)
+# load(&quot;Lab1/lab1_e2.Rdata&quot;)
+get_id &lt;- function(df_lst) {
+  tmp_df &lt;- Reduce(function(x, y) merge(x, y, by = &quot;id&quot;), df_lst)
+  data.frame(id = tmp_df[, 1], mean_temp = rowMeans(tmp_df[, 2:8]))
+}
+
+another_new_df &lt;- get_id(all_data)
+print(another_new_df)</code></pre>
 <pre><code>##    id mean_temp
 ## 1   1  36.37046
 ## 2   2  36.65626

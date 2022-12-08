@@ -23,7 +23,7 @@ editor_options:
 Используйте цвет для разделения графиков. Добавьте текстовые подписи величин импорта и экспорта. Отрегулируйте местоположение и размер шрифта
 для подписей так, чтобы они не налезали на линии и не перекрывали друг
 друга, рисунок был максимально наглядным. Придумайте новые названия для графика и осей.
-```{r echo=FALSE, warning=FALSE}
+```{r, warning=FALSE}
 library(dplyr, warn.conflicts = FALSE)
 library(stringr)
 library(tidyr)
@@ -64,7 +64,7 @@ print(p)
 субъекты федерации разными цветами. Подпишите значения на графике.
 Отрегулируйте местоположение подписей так, чтобы рисунок был максимально
 наглядным. Придумайте новые назания графика и осей.
-```{r echo=FALSE, warning=FALSE, message=FALSE}
+```{r, warning=FALSE, message=FALSE}
 # df <- read_csv("Lab3/reforest.csv", na = c("-", "NA"))
 library(dplyr, warn.conflicts = FALSE)
 library(stringr)
